@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzj.springboot.dao.UserDao">
+    <resultMap type="com.zzj.springboot.pojo.User" id="user"></resultMap>
+
+    <select id="queryAll" resultMap="user">
+        select * from user
+    </select>
+    <insert id="add" parameterType="com.zzj.springboot.pojo.User">
+        INSERT INTO user(
+        id,
+        name,
+        password
+        ) VALUES(#{id},#{name},#{password})
+
+    </insert>
+
+    <update id="edit" parameterType="com.zzj.springboot.pojo.User">
+        UPDATE user
+        <set>
+            <if test="id != null and id != ''">
+                id = #{id},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="del" parameterType="Integer">
+        DELETE FROM user WHERE id = #{id}
+    </delete>
+
+</mapper>
