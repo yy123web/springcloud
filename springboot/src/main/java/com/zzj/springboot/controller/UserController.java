@@ -1,6 +1,7 @@
 package com.zzj.springboot.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.activiti.engine.impl.util.json.JSONObject;
 import com.zzj.springboot.pojo.User;
 import com.zzj.springboot.service.impl.UserServiceImpl;
@@ -25,6 +26,19 @@ public class UserController {
         obj.put("data", users);
         return obj.toString();
     }
+
+    //查询
+    @RequestMapping(value = "/query")
+//    @RequestParam String name
+    public String queryById(@RequestParam Integer id) {
+        User user = helloService.queryById(id);
+        JSONObject obj = new JSONObject();
+        obj.put("data", user);
+        return obj.toString();
+    }
+
+
+
 
     //增加
     @RequestMapping(value = "/add")

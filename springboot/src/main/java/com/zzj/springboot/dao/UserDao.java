@@ -12,4 +12,6 @@ public interface UserDao {
     Integer edit(User user);
 
     Integer del(Integer id);
+
+    User queryById(Integer id);
 }

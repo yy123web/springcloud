@@ -6,6 +6,11 @@
     <select id="queryAll" resultMap="user">
         select * from user
     </select>
+
+    <select id="queryById" parameterType="Integer" resultMap="user">
+        select * from user where id = #{id}
+    </select>
+
     <insert id="add" parameterType="com.zzj.springboot.pojo.User">
         INSERT INTO user(
         id,
@@ -18,9 +23,7 @@
     <update id="edit" parameterType="com.zzj.springboot.pojo.User">
         UPDATE user
         <set>
-            <if test="id != null and id != ''">
-                id = #{id},
-            </if>
+
             <if test="name != null and name != ''">
                 name = #{name},
             </if>
