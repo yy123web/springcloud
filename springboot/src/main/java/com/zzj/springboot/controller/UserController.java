@@ -36,8 +36,11 @@ public class UserController {
         obj.put("data", user);
         return obj.toString();
     }
-
-
+    //登录
+    @RequestMapping(value = "login")
+    public String login(User user){
+        return helloService.login(user);
+    }
 
 
     //增加

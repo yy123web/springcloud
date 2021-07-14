@@ -3,6 +3,7 @@ package com.zzj.springboot.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.zzj.springboot.pojo.User;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 public interface UserService {
@@ -15,4 +16,6 @@ public interface UserService {
     Integer del(Integer id);
 
     User queryById(Integer id);
+
+    String login(User user);
 }

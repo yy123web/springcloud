@@ -38,4 +38,8 @@
         DELETE FROM user WHERE id = #{id}
     </delete>
 
+    <select id="login" parameterType="com.zzj.springboot.pojo.User" resultType="com.zzj.springboot.pojo.User">
+        select * from user where id=#{id} and name=#{name} and password=#{password}
+    </select>
+
 </mapper>

@@ -14,4 +14,6 @@ public interface UserDao {
     Integer del(Integer id);
 
     User queryById(Integer id);
+
+    User login(User user);
 }
