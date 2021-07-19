@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class UserController {
@@ -40,9 +38,10 @@ public class UserController {
         obj.put("data", user);
         return obj.toString();
     }
+
     //登录
     @RequestMapping(value = "login")
-    public String login(User user){
+    public String login(User user) {
         return helloService.login(user);
     }
 
@@ -85,26 +84,26 @@ public class UserController {
     @ResponseBody
     public String json6() throws Exception {
         List<User> userList = new ArrayList<User>();
-        User user1 = new User(01,"zhangsan","123");
-        User user2 = new User(02,"lisi","123");
-        User user3 = new User(03,"wangwu","123");
-        User user4 = new User(04,"liliu","123");
+        User user1 = new User(01, "zhangsan", "123");
+        User user2 = new User(02, "lisi", "123");
+        User user3 = new User(03, "wangwu", "123");
+        User user4 = new User(04, "liliu", "123");
         userList.add(user1);
         userList.add(user2);
         userList.add(user3);
         userList.add(user4);
-        System.out.println("user1: "+user1);
+
         System.out.println("****Java对象 转 JSON字符串****");
         String str1 = JSON.toJSONString(userList);
-        System.out.println("str1: "+str1);
+        System.out.println(str1);
         String str2 = JSON.toJSONString(user1);
         Map map = JSONObject.parseObject(JSONObject.toJSONString(user1), Map.class);
-        System.out.println("map: "+map);
-        System.out.println("str2: "+str2);
+        System.out.println("map: " + map);
+        System.out.println("str2: " + str2);
 
         System.out.println("****JSON字符串 转 Java对象****");
         User jp_user1 = JSON.parseObject(str2, User.class);
-        System.out.println("jp_user1: "+jp_user1);
+        System.out.println("jp_user1: " + jp_user1);
 
         System.out.println("****Java对象 转 JSON对象****");
         JSONObject jsonObject1 = (JSONObject) JSON.toJSON(user2);
@@ -112,8 +111,33 @@ public class UserController {
 
         System.out.println("****JSON对象 转 Java对象****");
         User to_java_user = JSON.toJavaObject(jsonObject1, User.class);
-        System.out.println("to_java_user: "+to_java_user);
+        System.out.println("to_java_user: " + to_java_user);
 
         return "Hello";
+    }
+
+    @RequestMapping("/test")
+    @ResponseBody
+    public String getMap() {
+        ArrayList<Object> al = new ArrayList<>();
+        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+        String letters[] = {"a", "b", "c", "d", "e"};
+        for (int i = 0; i < letters.length; i++) {
+            map.put(letters[i], i + 1);
+
+        }
+        al.add(map);
+
+        LinkedHashMap<String, Object> map1 = (LinkedHashMap<String, Object>) al.get(0);
+
+        Set<Map.Entry<String, Object>> set = map1.entrySet();
+        for (Map.Entry<String, Object> entry : set) {
+            if (entry.getKey().equals("a")) {
+                Object value = entry.getValue();
+                System.out.println(value);
+                return value.toString();
+            }
+        }
+        return map.toString();
     }
 }
