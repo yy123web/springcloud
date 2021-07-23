@@ -140,4 +140,43 @@ public class UserController {
         }
         return map.toString();
     }
+
+
+
+    /**
+     * @return double
+     * @author jitwxs
+     * @date 2021/7/22
+     */
+    @RequestMapping("/cal")
+    @ResponseBody
+    public double cal() {
+
+        System.out.println("请输入a的值：");
+        Scanner str1 = new Scanner(System.in);   //键入a的值并存入String类型变量str1中
+        int a = Integer.valueOf(str1.nextLine());  /*nextline()方法读取a的值并通过valueOf()方法
+		将String类型的数据转换为int型数据*/
+        System.out.println("请输入b的值：");   //键入b的值并存入String类型变量str2中
+        Scanner str2 = new Scanner(System.in);
+        int b = Integer.valueOf(str2.nextLine());
+        int c = 0;
+        try {     //try代码块处理可能出现的异常信息
+            c = a / b;
+        } catch (Exception e) {
+//            System.out.println("除数b不能为0，请重新输入b的值：");
+//            Scanner str3 = new Scanner(System.in);
+//            int b2 = Integer.valueOf(str3.nextLine());
+//            c = a / b2;
+            e.printStackTrace();
+        }
+
+        System.out.println("a = " + a);
+        System.out.println("b = " + a);
+        System.out.println("c = " + c);
+        System.out.println("除数b不能为0，请重新输入b的值：");
+        Scanner str3 = new Scanner(System.in);
+        int b2 = Integer.valueOf(str3.nextLine());
+        c = a / b2;
+        return c;
+    }
 }
