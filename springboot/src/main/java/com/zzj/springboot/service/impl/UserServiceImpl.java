@@ -5,11 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zzj.springboot.dao.UserDao;
 import com.zzj.springboot.pojo.User;
 import com.zzj.springboot.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -21,6 +25,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired(required = false)
+    private JedisCluster jedisCluster;
 
     @Override
     public List<User> queryAll() {
@@ -76,5 +83,23 @@ public class UserServiceImpl implements UserService {
         return "登录失败！";
 
 
+    }
+    public void redisDelTest() {
+        ScanParams scanParams = new ScanParams().match("rosterInfo".concat("*")).count(200);
+        String cur = ScanParams.SCAN_POINTER_START;
+        boolean hasNext = true;
+        int count = 0;
+        while (hasNext) {
+            count++;
+            ScanResult<String> scanResult = jedisCluster.scan(cur, scanParams); //key的正则表达式
+            List<String> keys = scanResult.getResult();
+            for (String key : keys) {
+                jedisCluster.del(key);
+            }
+            cur = scanResult.getCursor();  //返回用于下次遍历的游标
+            if (StringUtils.equals("0", cur)) { //说明遍历已结束
+                hasNext = false;
+            }
+        }
     }
 }
