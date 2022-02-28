@@ -3,6 +3,7 @@ package com.zzj.springboot.controller;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,9 +14,11 @@ import java.util.Scanner;
  * @date 2021年07月23日 9:23
  */
 public class Test3 {
-    public static void main(String[] args) {
-        f();
-    }
+    @Autowired
+    private UserController userController;
+//    public static void main(String[] args) {
+//        f();
+//    }
 
     private static void f() {
         System.out.println("输入两个浮点数：");

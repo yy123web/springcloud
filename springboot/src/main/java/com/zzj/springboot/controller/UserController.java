@@ -4,21 +4,36 @@ package com.zzj.springboot.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jarvis.cache.lock.ILock;
+import com.zzj.springboot.dao.ProtocolInfoDao;
+import com.zzj.springboot.dao.UserDao;
+import com.zzj.springboot.pojo.ProtocolInfo;
 import com.zzj.springboot.pojo.User;
 import com.zzj.springboot.service.impl.UserServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.rabbitmq.client.*;
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 import java.util.*;
-
+@Slf4j
 @RestController
 public class UserController {
     @Autowired
     private UserServiceImpl helloService;
-
+    @Autowired
+    private ILock lock;
+    @Autowired(required = false)
+    private ProtocolInfoDao protocolInfoDao;
+    @Autowired(required = false)
+    private UserDao userDao;
     //查询
     @RequestMapping(value = "/hi")
 //    @RequestParam String name
@@ -179,4 +194,111 @@ public class UserController {
         c = a / b2;
         return c;
     }
+
+//    @RequestMapping("/test18")
+//    public void test18() throws InterruptedException {
+//        ILock lock = new
+//        String key = "test123";
+//        boolean b = lock.tryLock(key, 1000 * 200);
+//        log.info("{}",b);
+//        log.info("等待120秒");
+//        Thread.sleep(120 * 1000);
+//        lock.unlock(key);
+//    }
+//    @RequestMapping("/test19")
+//    public void test19() {
+//        String key = "test123";
+//        boolean b = lock.tryLock(key, 1000 * 120);
+//        log.info("{}",b);
+//
+//    }
+
+    public static void main(String[] args) throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setUsername("guest");
+        factory.setPassword("guest");
+        factory.setHost("localhost");
+        //建立到代理服务器到连接
+        Connection conn = factory.newConnection();
+        //获得信道
+        final Channel channel = conn.createChannel();
+        //声明交换器
+        String exchangeName = "hello-exchange";
+        channel.exchangeDeclare(exchangeName, "direct", true);
+        //声明队列
+        String queueName = channel.queueDeclare().getQueue();
+        String routingKey1 = "hola1";
+        String routingKey2 = "hola2";
+        //绑定队列，通过键 hola 将队列和交换器绑定起来
+        channel.queueBind(queueName, exchangeName, routingKey1);
+        channel.queueBind(queueName, exchangeName, routingKey2);
+
+        while(true) {
+            //消费消息
+            boolean autoAck = false;
+            String consumerTag = "";
+            channel.basicConsume(queueName, autoAck, consumerTag, new DefaultConsumer(channel) {
+                @Override
+                public void handleDelivery(String consumerTag,
+                                           Envelope envelope,
+                                           AMQP.BasicProperties properties,
+                                           byte[] body) throws IOException {
+                    String routingKey = envelope.getRoutingKey();
+                    String contentType = properties.getContentType();
+                    System.out.println("消费的路由键：" + routingKey);
+                    System.out.println("消费的内容类型：" + contentType);
+                    long deliveryTag = envelope.getDeliveryTag();
+                    //确认消息
+                    channel.basicAck(deliveryTag, false);
+                    System.out.println("消费的消息体内容：");
+                    String bodyStr = new String(body, "UTF-8");
+                    System.out.println(bodyStr);
+
+                }
+            });
+        }
+    }
+    @RequestMapping(value = "/synTest1")
+//    @RequestParam String name
+    public String synTest1() {
+        System.out.println("主线程执行开始......");
+        log.debug("主线程执行开始......");
+        helloService.longtime();
+//        doAsyncMethod();
+//        doAsyncMethod();
+        System.out.println("主线程执行结束......");
+        log.debug("主线程执行结束......");
+        return "SUCCESS";
+    }
+
+    @RequestMapping(value = "/synTest2")
+    public void synTest2() throws Exception {
+        System.out.println("main函数开始执行");
+        Thread thread=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("===task start===");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("===task finish===");
+            }
+        });
+
+        thread.start();
+        System.out.println("main函数执行结束");
+
+    }
+
+
+//    @RequestMapping(value = "/queryByRedis")
+////    @RequestParam String name
+//    public String queryBy(@RequestParam Integer id) {
+//        userDao.selectOne("")
+//    }
+
+
+
 }

@@ -1,6 +1,14 @@
 package com.zzj.springboot.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jarvis.cache.lock.ILock;
 import com.jcraft.jsch.*;
+import com.zzj.springboot.factory.FactoryTest;
+import com.zzj.springboot.factory.ParseFileFactory;
+import com.zzj.springboot.factory.Test1Excutor;
+import com.zzj.springboot.controller.UserController;
+import com.zzj.springboot.dao.ProtocolInfoDao;
+import com.zzj.springboot.dao.UserDao;
 import com.zzj.springboot.pojo.User;
 import com.zzj.springboot.service.UserService;
 import com.zzj.springboot.util.BytesUtil;
@@ -8,38 +16,32 @@ import com.zzj.springboot.util.UnFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Strings;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 
 import org.apache.commons.io.LineIterator;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -47,10 +49,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceImplTest {
     @Autowired
     private UserService userService;
-
-
     @Autowired(required = false)
-    private JedisCluster jedisCluster;
+    private UserDao userDao;
+    @Autowired
+    private ILock lock;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired(required = false)
+    private ProtocolInfoDao protocolInfoDao;
+    @Autowired
+    private UserController userController;
+    @Autowired
+    private ParseFileFactory parseFileFactory;
 
 
     @Test
@@ -59,6 +69,16 @@ class UserServiceImplTest {
         for (User user : users) {
             System.out.println(user);
         }
+
+    }
+
+    @Test
+    void query() {
+        User user = userDao.selectById(1);
+//        for (User user : users) {
+//            System.out.println(user);
+//        }
+        System.out.println(user);
 
     }
 
@@ -80,7 +100,7 @@ class UserServiceImplTest {
     @Test
     void edit() {
         User user = new User();
-        user.setId(4);
+        user.setId(3);
         user.setName("liliu");
         userService.edit(user);
     }
@@ -576,6 +596,14 @@ class UserServiceImplTest {
     }
 
     @Test
+    public void test11() throws UnknownHostException {
+        InetAddress addr = InetAddress.getLocalHost();
+        System.out.println("Local HostAddress:" + addr.getHostAddress());
+        String hostname = addr.getHostName();
+        System.out.println("Local host name: " + hostname);
+    }
+
+    @Test
     public void test12() {
         String newFullPathFile = "C:\\Users\\hspcadmin\\Desktop\\HMC.txt";
 //        File checkFile = FileUtils.getFile(newFullPathFile, String.format("%s.txt", "HMC"));
@@ -618,13 +646,169 @@ class UserServiceImplTest {
         System.out.println(newFile);
     }
 
-    @Test
-    public void test11() throws UnknownHostException {
-        InetAddress addr = InetAddress.getLocalHost();
-        System.out.println("Local HostAddress:" + addr.getHostAddress());
-        String hostname = addr.getHostName();
-        System.out.println("Local host name: " + hostname);
+    private String routerResultToSimpleString(Map<String, String> routerMap) {
+        StringBuilder simpleSB = new StringBuilder();
+        simpleSB.append("[");
+        Iterator<Map.Entry<String, String>> iterator = routerMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            simpleSB.append(entry.getValue() != null ? entry.getValue() : "");
+            if (iterator.hasNext()) {
+                simpleSB.append(", ");
+            }
+        }
+        simpleSB.append("]");
+        System.out.println(simpleSB.toString());
+        return simpleSB.toString();
     }
 
+    @Test
+    public void test14() {
+        Map<String, String> map = new HashMap<>();
+        map.put("1", "xiaoming");
+        map.put("2", "xiaohong");
+        map.put("3", "xiaowang");
+        map.put("4", "xiaoliu");
+        map.put("5", "xiaozhang");
+        map.put("6", "xiaoli");
+        routerResultToSimpleString(map);
+        List list = new ArrayList();
+        List list1 = new ArrayList();
+        list1.add(1);
+        list1.add(2);
+        list1.add(3);
+        list1.add(4);
+        list1.add(5);
+        list1.add(6);
+        list.addAll(list1);
+        System.out.println(list);
+    }
 
+    @Test
+    public void test15() {
+        List list = new ArrayList();
+        list.add(new BigDecimal(Math.random()).setScale(7, RoundingMode.DOWN).toString().substring(2, 8));
+        System.out.println(list);
+    }
+
+    @Test
+    public void test16() {
+//        BigDecimal bigDecimal1 = new BigDecimal("0");
+//        BigDecimal bigDecimal2 = new BigDecimal("0");
+//        if( bigDecimal1 <= bigDecimal2 ){
+//
+//        }
+        int i = BigDecimal.ZERO.compareTo(new BigDecimal("0000000000000000000".trim()));
+        System.out.println(new BigDecimal("0000000000000000000".trim()));
+        System.out.println(i);
+    }
+
+    @Test
+    public void test17() {
+        String s = "";
+        User user = new User();
+        user.setPassword("123");
+//        if (Strings.isNullOrEmpty(s)) {
+//            log.info("Strings.isNullOrEmpty : true");
+//        } else {
+//            log.info("Strings.isNullOrEmpty : false");
+//        }
+//        if (StringUtils.isBlank(s)) {
+//            log.info("StringUtils.isBlank : true");
+//        } else {
+//            log.info("StringUtils.isBlank : false");
+//        }
+//        if (StringUtils.isEmpty(s)) {
+//            log.info("StringUtils.isEmpty : true");
+//        } else {
+//            log.info("StringUtils.isEmpty : false");
+//        }
+        if (StringUtils.isNotBlank(user.getName())) {
+            log.info("true");
+        } else {
+            log.info("false");
+        }
+        if (StringUtils.isNotEmpty(user.getName())) {
+            log.info("true");
+        } else {
+            log.info("false");
+        }
+    }
+
+    @Test
+    public void test18() throws InterruptedException {
+        String key = "test123";
+        boolean b = lock.tryLock(key, 1000 * 200);
+        log.info("{}--等待120秒",b);
+        Thread.sleep(120 * 1000);
+        log.info("等待结束");
+        lock.unlock(key);
+    }
+
+    @Test
+    public void test19() {
+        String key = "test123";
+        boolean b = lock.tryLock(key, 1000 * 120);
+        log.info("{}", b);
+
+    }
+    @Test
+    public void test20() {
+        String amt = "0000000100";
+        System.out.println(Integer.parseInt(amt));
+    }
+    @Test
+    public void test01 () {
+//        for (int i = 0; i < 1000; i++) {
+//            ProtocolInfo protocolInfo = new ProtocolInfo();
+//            protocolInfo.setAcct("");
+//            protocolInfoDao.insert(protocolInfo);
+//        }
+
+        for (int i = 0 ; i<10 ; i++) {
+            User user = new User();
+            Integer a = 00222;
+            a=a+i;
+            String b = String.format("%06d", a);
+            System.out.println(a);
+            System.out.println(b);
+//            user.setId(a);
+//            user.setName(b);
+//            userDao.insert(user);
+        }
+//        Integer num = 10;
+//        String numString = String.format("%08d", num);
+//        System.out.println(numString);
+
+
+
+
+    }
+    @Test
+    public void test21() {
+        List<User> users = userDao.selectList(null);
+        System.out.println(users);
+
+    }
+    @Test
+    public void test22() {
+        QueryWrapper<User> wrapper = new QueryWrapper<User>();
+        wrapper.lambda().eq(User::getId,1)
+                .or().eq(User::getId,2)
+                .or().eq(User::getId,9);
+        List<User> users = userDao.selectList(wrapper);
+        System.out.println(users);
+    }
+
+    @Test
+    public void test23() {
+        Test1Excutor test1Excutor = new Test1Excutor();
+        test1Excutor.execute();
+    }
+
+    @Test
+    public void test24() {
+        FactoryTest factoryTest = parseFileFactory.createInstance("type1");
+        factoryTest.parse();
+    }
 }

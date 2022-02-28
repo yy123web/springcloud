@@ -8,16 +8,16 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="springcloud (4)" />
-        <module name="springcloud4" />
+        <module name="springcloud (2)" />
         <module name="springboot" />
         <module name="springcloud" />
         <module name="springcloud03" />
         <module name="springcloud (1)" />
         <module name="springcloud01" />
-        <module name="springcloud (3)" />
-        <module name="springcloud (2)" />
-        <module name="springcloud02" />
         <module name="IdeaProjects" />
+        <module name="springcloud4" />
+        <module name="springcloud02" />
+        <module name="springcloud (3)" />
       </profile>
     </annotationProcessing>
   </component>

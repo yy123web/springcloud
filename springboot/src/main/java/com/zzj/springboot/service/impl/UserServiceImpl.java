@@ -2,6 +2,7 @@ package com.zzj.springboot.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jarvis.cache.annotation.Cache;
 import com.zzj.springboot.dao.UserDao;
 import com.zzj.springboot.pojo.User;
 import com.zzj.springboot.service.UserService;
@@ -9,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import redis.clients.jedis.JedisCluster;
@@ -60,14 +63,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public User queryById(Integer id) {
 //        redisTemplate.delete("user_" + id);
-        User user = (User) redisTemplate.opsForValue().get("user_" + id);
-        // 如果缓存中没有，则从数据库中查询并放入缓存中
-        if (user == null) {
-            System.out.println("从数据库查询数据");
-            user = userDao.queryById(id);
-            redisTemplate.opsForValue().set("user_" + id.toString(), user.toString());
-        }
-
+//        User user = (User) redisTemplate.opsForValue().get("user_" + id);
+//        // 如果缓存中没有，则从数据库中查询并放入缓存中
+//        if (user == null) {
+//            System.out.println("从数据库查询数据");
+//            user = userDao.queryById(id);
+//            redisTemplate.opsForValue().set("user_" + id.toString(), user);
+//        }
+        User user = userDao.queryById(id);
         // 返回从redis缓存中获得的数据
         return user;
     }
@@ -101,5 +104,16 @@ public class UserServiceImpl implements UserService {
                 hasNext = false;
             }
         }
+    }
+    @Async
+    public void longtime() {
+        System.out.println("我在执行一项耗时任务");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("完成");
+
     }
 }
