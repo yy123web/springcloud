@@ -16,6 +16,10 @@
         <option value="$PROJECT_DIR$/springcloud03/pom.xml" />
         <option value="$PROJECT_DIR$/springcloud4/pom.xml" />
         <option value="$PROJECT_DIR$/springboot/pom.xml" />
+        <option value="$PROJECT_DIR$/rabbitmq-provider/pom.xml" />
+        <option value="$PROJECT_DIR$/rabbitmq-consumer/pom.xml" />
+        <option value="$PROJECT_DIR$/demo-provider/pom.xml" />
+        <option value="$PROJECT_DIR$/demo-consumer/pom.xml" />
       </list>
     </option>
   </component>

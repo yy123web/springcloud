@@ -7,22 +7,30 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="springcloud (4)" />
-        <module name="springcloud (2)" />
-        <module name="springboot" />
-        <module name="springcloud" />
-        <module name="springcloud03" />
-        <module name="springcloud (1)" />
-        <module name="springcloud01" />
-        <module name="IdeaProjects" />
-        <module name="springcloud4" />
-        <module name="springcloud02" />
         <module name="springcloud (3)" />
+        <module name="IdeaProjects" />
+        <module name="springcloud" />
+        <module name="springcloud (4)" />
+        <module name="springcloud4" />
+        <module name="demo-consumer" />
+        <module name="demo-provider" />
+        <module name="rabbitmq-provider" />
+        <module name="springcloud03" />
+        <module name="springcloud02" />
+        <module name="springcloud01" />
+        <module name="springboot" />
+        <module name="springcloud (1)" />
+        <module name="springcloud (2)" />
+        <module name="rabbitmq-consumer" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="demo-consumer" options="-parameters" />
+      <module name="demo-provider" options="-parameters" />
+      <module name="rabbitmq-consumer" options="-parameters" />
+      <module name="rabbitmq-provider" options="-parameters" />
       <module name="springboot" options="-parameters" />
       <module name="springcloud (1)" options="-parameters" />
       <module name="springcloud (2)" options="-parameters" />
