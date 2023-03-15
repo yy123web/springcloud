@@ -28,18 +28,19 @@ public class SendMessageController {
     public String sendDirectMessage() throws JsonProcessingException {
         String messageId = String.valueOf(UUID.randomUUID());
         String messageData = "test message, hello!";
-        Map<String,Object> map = new HashMap<>();
-        map.put("messageId",messageId);
-        map.put("messageData",messageData);
+        Map<String, Object> map = new HashMap<>();
+        map.put("messageId", messageId);
+        map.put("messageData", messageData);
         User user = new User();
         user.setId(1);
         user.setName("张三");
         user.setPassword("123");
         ObjectMapper objectMapper = new ObjectMapper();
         String msg = objectMapper.writeValueAsString(user);
-        rabbitTemplate.convertAndSend("TestDirectExchange","TestDirectRouting",msg);
+        rabbitTemplate.convertAndSend("TestDirectExchange", "TestDirectRouting", msg);
         return "发送成功";
     }
+
     @GetMapping("/sendTopicMessage1")
     public String sendTopicMessage1() throws JsonProcessingException {
         User user = new User();
@@ -48,9 +49,10 @@ public class SendMessageController {
         user.setPassword("123");
         ObjectMapper objectMapper = new ObjectMapper();
         String msg = objectMapper.writeValueAsString(user);
-        rabbitTemplate.convertAndSend("topicExchange","topic.man",msg);
+        rabbitTemplate.convertAndSend("topicExchange", "topic.man", msg);
         return "发送成功";
     }
+
     @GetMapping("/sendTopicMessage2")
     public String sendTopicMessage2(@RequestBody User user) throws JsonProcessingException {
 //        User user = new User();
@@ -59,9 +61,10 @@ public class SendMessageController {
 //        user.setPassword("123");
         ObjectMapper objectMapper = new ObjectMapper();
         String msg = objectMapper.writeValueAsString(user);
-        rabbitTemplate.convertAndSend("topicExchange","topic.woman",msg);
+        rabbitTemplate.convertAndSend("topicExchange", "topic.woman", msg);
         return "发送成功";
     }
+
     @GetMapping("/sendFanoutMessage")
     public String sendFanoutMessage() throws JsonProcessingException {
         User user = new User();
@@ -70,7 +73,7 @@ public class SendMessageController {
         user.setPassword("123");
         ObjectMapper objectMapper = new ObjectMapper();
         String msg = objectMapper.writeValueAsString(user);
-        rabbitTemplate.convertAndSend("fanoutExchange",null,msg);
+        rabbitTemplate.convertAndSend("fanoutExchange", null, msg);
         return "发送成功";
     }
 }

@@ -1,28 +1,31 @@
 package com.zzj.springboot.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jarvis.cache.annotation.Cache;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.zzj.springboot.dao.UserDao;
 import com.zzj.springboot.pojo.User;
 import com.zzj.springboot.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 
-import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Service
-public class UserServiceImpl implements UserService {
+@Slf4j
+public class UserServiceImpl implements UserService, Runnable {
     @Autowired(required = false)
     private UserDao userDao;
 
@@ -78,7 +81,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String login(User user) {
         User isUser = userDao.login(user);
-        if(isUser!=null){
+        if (isUser != null) {
             System.out.println("登录成功！");
             return "登录成功！";
         }
@@ -87,6 +90,17 @@ public class UserServiceImpl implements UserService {
 
 
     }
+
+    @Override
+    public PageInfo<User> getUserInfoByPage(User user) {
+        PageHelper.startPage(user.getCurrPageNo(), user.getPageSize());
+        List<User> users = userDao.queryAll();
+        PageInfo<User> pageInfo = new PageInfo<>(users);
+//        pageInfo.setTotal(pageInfo.getTotal());
+//        pageInfo.setPages(pageInfo.getPages());
+        return pageInfo;
+    }
+
     public void redisDelTest() {
         ScanParams scanParams = new ScanParams().match("rosterInfo".concat("*")).count(200);
         String cur = ScanParams.SCAN_POINTER_START;
@@ -105,6 +119,7 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
+
     @Async
     public void longtime() {
         System.out.println("我在执行一项耗时任务");
@@ -115,5 +130,34 @@ public class UserServiceImpl implements UserService {
         }
         System.out.println("完成");
 
+    }
+
+    @Override
+    public String test04() {
+        log.info("-----------------主线程开始执行-----------------");
+        ThreadPoolExecutor es = new ThreadPoolExecutor(50, 50, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r);
+                t.setDaemon(true);
+                log.info("创建线程: [{}]", t);
+                return t;
+            }
+        });
+        UserServiceImpl userService = new UserServiceImpl();
+        es.submit(userService);
+        log.info("-----------------主线程执行结束-----------------");
+        return "ok";
+    }
+
+    @Override
+    public void run() {
+        log.info("-----------------子线程开始执行-----------------");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        log.info("-----------------子线程执行结束-----------------");
     }
 }

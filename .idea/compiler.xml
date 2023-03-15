@@ -12,7 +12,7 @@
         <module name="springcloud" />
         <module name="springcloud (4)" />
         <module name="springcloud4" />
-        <module name="demo-consumer" />
+        <module name="springcloud (2)" />
         <module name="demo-provider" />
         <module name="rabbitmq-provider" />
         <module name="springcloud03" />
@@ -20,7 +20,7 @@
         <module name="springcloud01" />
         <module name="springboot" />
         <module name="springcloud (1)" />
-        <module name="springcloud (2)" />
+        <module name="demo-consumer" />
         <module name="rabbitmq-consumer" />
       </profile>
     </annotationProcessing>

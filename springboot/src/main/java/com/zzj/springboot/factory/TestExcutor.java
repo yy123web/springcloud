@@ -12,9 +12,6 @@ public abstract class TestExcutor {
         System.out.println("父类测试");
     }
 
-
-
-
     protected abstract void  doExcutor();
 
 }

@@ -1,10 +1,9 @@
 package com.zzj.springboot.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.pagehelper.PageInfo;
 import com.zzj.springboot.pojo.User;
 import org.springframework.scheduling.annotation.Async;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 public interface UserService {
@@ -19,6 +18,11 @@ public interface UserService {
     User queryById(Integer id);
 
     String login(User user);
+
+    PageInfo<User> getUserInfoByPage(User user);
+
     @Async
     public void longtime();
+
+    String test04();
 }

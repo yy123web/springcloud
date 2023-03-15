@@ -1,23 +1,36 @@
 package com.zzj.springboot.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jarvis.cache.lock.ILock;
 import com.jcraft.jsch.*;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import com.zzj.springboot.enums.EnumTest;
 import com.zzj.springboot.factory.FactoryTest;
 import com.zzj.springboot.factory.ParseFileFactory;
 import com.zzj.springboot.factory.Test1Excutor;
 import com.zzj.springboot.controller.UserController;
 import com.zzj.springboot.dao.ProtocolInfoDao;
 import com.zzj.springboot.dao.UserDao;
+import com.zzj.springboot.factory.executor.Executor1;
+import com.zzj.springboot.pojo.Param;
+import com.zzj.springboot.pojo.ProtocolInfo;
 import com.zzj.springboot.pojo.User;
 import com.zzj.springboot.service.UserService;
 import com.zzj.springboot.util.BytesUtil;
 import com.zzj.springboot.util.UnFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.builder.ToStringExclude;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.assertj.core.util.Strings;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -451,6 +464,73 @@ class UserServiceImplTest {
 //        return wb;
 //    }
 
+    private List<String> readXlsFile(String excelPath) throws Exception {
+        List<String> list = null;
+        String cellData = null;
+        Workbook wb = null;
+        Sheet sheet = null;
+        Row row = null;
+        wb = readExcel(excelPath);
+        if (wb != null) {
+            list = new ArrayList<String>();
+            sheet = wb.getSheetAt(0);
+            int rownum = sheet.getPhysicalNumberOfRows();
+            row = sheet.getRow(1);
+            int colnum = row.getPhysicalNumberOfCells();
+            for (int i = 0; i < rownum; i++) {
+                row = sheet.getRow(i);
+                StringBuffer sb = new StringBuffer();
+                if (row != null) {
+                    for (int j = 0; j < colnum; j++) {
+                        DataFormatter formatter = new DataFormatter();
+                        cellData = formatter.formatCellValue(row.getCell(j));
+                        if (j == (colnum - 1)) {
+                            sb.append(cellData);
+                        } else {
+                            sb.append(cellData + "|");
+                        }
+                    }
+                } else {
+                    break;
+                }
+                list.add(sb.toString());
+            }
+            try {
+                wb.close();
+            } catch (IOException e) {
+                log.error("文件 {} 读取异常", excelPath);
+                throw new Exception(e);
+            }
+        }
+        return list;
+    }
+
+    public static Workbook readExcel(String filePath) throws Exception {
+        Workbook wb = null;
+        if (filePath == null) {
+            return null;
+        }
+        String extString = filePath.substring(filePath.lastIndexOf("."));
+        InputStream is = null;
+        try {
+            is = new FileInputStream(filePath);
+            if (".xls".equals(extString)) {
+                return wb = new HSSFWorkbook(is);
+            } else if (".xlsx".equals(extString)) {
+                return wb = new XSSFWorkbook(is);
+            } else {
+                return wb = null;
+            }
+        } catch (FileNotFoundException e) {
+            log.error("文件 {} 不存在", filePath);
+            throw new Exception(e);
+        } catch (IOException e) {
+            log.error("文件 {} 读取异常", filePath);
+            throw new Exception(e);
+        }
+
+    }
+
     @Test
     public void test06() {
 //        User user1 = new User();
@@ -739,7 +819,7 @@ class UserServiceImplTest {
     public void test18() throws InterruptedException {
         String key = "test123";
         boolean b = lock.tryLock(key, 1000 * 200);
-        log.info("{}--等待120秒",b);
+        log.info("{}--等待120秒", b);
         Thread.sleep(120 * 1000);
         log.info("等待结束");
         lock.unlock(key);
@@ -752,23 +832,25 @@ class UserServiceImplTest {
         log.info("{}", b);
 
     }
+
     @Test
     public void test20() {
         String amt = "0000000100";
         System.out.println(Integer.parseInt(amt));
     }
+
     @Test
-    public void test01 () {
+    public void test01() {
 //        for (int i = 0; i < 1000; i++) {
 //            ProtocolInfo protocolInfo = new ProtocolInfo();
 //            protocolInfo.setAcct("");
 //            protocolInfoDao.insert(protocolInfo);
 //        }
 
-        for (int i = 0 ; i<10 ; i++) {
+        for (int i = 0; i < 10; i++) {
             User user = new User();
             Integer a = 00222;
-            a=a+i;
+            a = a + i;
             String b = String.format("%06d", a);
             System.out.println(a);
             System.out.println(b);
@@ -781,21 +863,48 @@ class UserServiceImplTest {
 //        System.out.println(numString);
 
 
-
-
     }
+    @Test
+    public void test36() {
+//        String a = "04504520";
+//        Integer a1 = Integer.parseInt(a);
+//        String b = String.format("%011d", a1);
+//        System.out.println(b);
+        BigDecimal transAmt = new BigDecimal("100.01");
+        transAmt = transAmt.movePointRight(2);
+        String transAmtChar = transAmt.toPlainString();
+        System.out.println(transAmtChar);
+        System.out.println(transAmt.toString());
+    }
+
+    @Test
+    public void test38() {
+        SimpleDateFormat dfRegDate = new SimpleDateFormat("MMdd");
+        System.out.println(dfRegDate.format(new Date()));
+
+        SimpleDateFormat dfRegTime = new SimpleDateFormat("hhmmss");
+        System.out.println(dfRegTime.format(new Date()));
+
+        SimpleDateFormat dfRegTime2 = new SimpleDateFormat("HHmmss");
+        System.out.println(dfRegTime2.format(new Date()));
+
+        SimpleDateFormat df = new SimpleDateFormat("MMddHHmmss");
+        System.out.println(df.format(new Date()));
+    }
+
     @Test
     public void test21() {
         List<User> users = userDao.selectList(null);
         System.out.println(users);
 
     }
+
     @Test
     public void test22() {
         QueryWrapper<User> wrapper = new QueryWrapper<User>();
-        wrapper.lambda().eq(User::getId,1)
-                .or().eq(User::getId,2)
-                .or().eq(User::getId,9);
+        wrapper.lambda().eq(User::getId, 1)
+                .or().eq(User::getId, 2)
+                .or().eq(User::getId, 9);
         List<User> users = userDao.selectList(wrapper);
         System.out.println(users);
     }
@@ -810,5 +919,149 @@ class UserServiceImplTest {
     public void test24() {
         FactoryTest factoryTest = parseFileFactory.createInstance("type1");
         factoryTest.parse();
+    }
+
+    @Test
+    public void test25() {
+        Executor1 executor1 = new Executor1();
+        executor1.execute();
+    }
+
+    @Test
+    public void test26() {
+        String s = "   123    ";
+        System.out.println(StringUtils.trim(s));
+
+    }
+
+    @Test
+    public void test27() {
+        System.out.println("请输入楼层：");
+        Scanner input = new Scanner(System.in);
+        int x = input.nextInt();
+        System.out.println("你选择的楼层为" + x + "层");
+        double time1;
+        double time2;
+        // 3号电梯
+        time2 = (x - 1) * 0.5 + (x - 1) * 3 + 10;
+        // 2号电梯：偶数楼层
+        if (x % 2 == 0) {
+            time1 = (x - 1) * 0.5 + (x / 2 - 1) * 5 + 15;
+            if (time1 > time2) {
+                System.out.println("乘坐3号电梯时间最短，时间为：" + time2);
+            } else {
+                System.out.println("乘坐2号电梯时间最短，时间为：" + time1);
+            }
+        } else {
+            // 1号电梯：奇数楼层
+            time1 = (x - 1) * 0.5 + ((x - 1) / 2 - 1) * 5 + 15;
+            if (time1 > time2) {
+                System.out.println("乘坐3号电梯时间最短，时间为：" + time2);
+            } else {
+                System.out.println("乘坐1号电梯时间最短，时间为：" + time1);
+            }
+        }
+    }
+    @Test
+    public void test28() {
+        System.out.println("请输入楼层：");
+        Scanner input = new Scanner(System.in);
+        int x = input.nextInt();
+        System.out.println("你选择的楼层为" + x + "层");
+    }
+
+    @Test
+    public void test29() {
+        List<Integer> list = new ArrayList();
+        list.add(2);
+        list.add(1);
+        list.add(3);
+        Collections.sort(list);
+        for(int i : list){
+            System.out.println(i);
+        }
+        System.out.println(list);
+        List list1 = new ArrayList();
+        list1.addAll(list);
+        System.out.println(list1);
+        Map<String,Object> map = new HashMap();
+        map.put("1","1");
+        map.put("2","2");
+        map.put("3","3");
+        System.out.println(map);
+        for(String key : map.keySet()){
+            System.out.println(key);
+        }
+
+    }
+    @Test
+    public void test30() throws UnsupportedEncodingException {
+//        String unicod = StringEscapeUtils.escapeJava("测试");
+//        System.out.println(new String(unicod.getBytes(),"GBK"));
+//        String code = StringEscapeUtils.unescapeJava(unicod);
+//
+//        System.out.println("unicode:"+unicod+"\tcode:"+code);
+        String s  = "CA004\u0001\u000211";
+        String ns=new String(s.getBytes(),"UTF-8");
+        System.out.println(ns);
+    }
+
+    @Test
+    public void test31() {
+        User user = new User();
+        user.setId(1);
+        System.out.println(user);
+        test32(user);
+        System.out.println(user);
+    }
+    private static void test32(User user) {
+        user.setId(2);
+    }
+
+    @Test
+    public void test33() {
+        for (EnumTest s : EnumTest.values()) {
+            System.out.println(s.getCode());
+        }
+    }
+
+    @Test
+    public void test34() {
+//        Map<String,String> map = new HashMap<>();
+//        map.put("param1","1");
+//        String param2 = map.get("param2");
+//        System.out.println(param2);
+        String jsonStr = "{\"param1\": \"param1\"," +
+                " \"param2\": \"param2\", " +
+                " \"param3\": \"param3\" " +
+                "}";
+        System.out.println(jsonStr);
+        Param param = JSONObject.parseObject(jsonStr, Param.class);
+        System.out.println(param.getParam1());
+        System.out.println(param);
+    }
+//    @Test
+//    public void test35() {
+//        Param param = test36();
+//
+//    }
+//    public static JSONObject test36() {
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("param1","param1");
+//        jsonObject.put("param2","param2");
+//        jsonObject.put("param3","param3");
+//        return jsonObject;
+//    }
+
+    @Test
+    public void test37() {
+        Param param = new Param();
+        System.out.println(param);
+        System.out.println(param.getParam1());
+        if ("".equals(param)) {
+            System.out.println("对象为空");
+        } else {
+            System.out.println("对象不为空");
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.zzj.rabbitmq_provider.controller;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -24,7 +25,7 @@ public class SendMessageController {
     @Autowired
     RabbitTemplate rabbitTemplate;  //使用RabbitTemplate,这提供了接收/发送等等方法
 
-    @GetMapping("/sendDirectMessage")
+    @PostMapping("/sendDirectMessage")
     public String sendDirectMessage() {
         String messageId = String.valueOf(UUID.randomUUID());
         String messageData = "test message, hello!";
@@ -37,7 +38,7 @@ public class SendMessageController {
         return "ok";
     }
 
-    @GetMapping("/sendTopicMessage1")
+    @PostMapping("/sendTopicMessage1")
     public String sendTopicMessage1() {
         String messageId = String.valueOf(UUID.randomUUID());
         String messageData = "message: M A N ";
@@ -49,7 +50,7 @@ public class SendMessageController {
         return "ok";
     }
 
-    @GetMapping("/sendTopicMessage2")
+    @PostMapping("/sendTopicMessage2")
     public String sendTopicMessage2() {
         String messageId = String.valueOf(UUID.randomUUID());
         String messageData = "message: woman is all ";
@@ -61,7 +62,7 @@ public class SendMessageController {
         return "ok";
     }
 
-    @GetMapping("/sendFanoutMessage")
+    @PostMapping("/sendFanoutMessage")
     public String sendFanoutMessage() {
         String messageId = String.valueOf(UUID.randomUUID());
         String messageData = "message: testFanoutMessage ";
@@ -77,7 +78,7 @@ public class SendMessageController {
 
     // 消息推送到server，但是在server里找不到交换机
     // 这种情况触发的是 ConfirmCallback 回调函数
-    @GetMapping("/TestMessageAck")
+    @PostMapping("/TestMessageAck")
     public String TestMessageAck() {
         String messageId = String.valueOf(UUID.randomUUID());
         String messageData = "message: non-existent-exchange test message ";
@@ -91,7 +92,7 @@ public class SendMessageController {
 
     // 消息推送到server，找到交换机了，但是没找到队列
     // 这种情况触发的是 ConfirmCallback和RetrunCallback两个回调函数
-    @GetMapping("/TestMessageAck2")
+    @PostMapping("/TestMessageAck2")
     public String TestMessageAck2() {
         String messageId = String.valueOf(UUID.randomUUID());
         String messageData = "message: lonelyDirectExchange test message ";

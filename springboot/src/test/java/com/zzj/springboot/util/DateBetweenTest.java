@@ -1,14 +1,24 @@
 package com.zzj.springboot.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.zzj.springboot.pojo.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 class DateBetweenTest {
 
 
@@ -42,4 +52,32 @@ class DateBetweenTest {
         in.close();
         System.out.println(counts);
     }
+
+    @Test
+    public void test12() {
+        User user = new User();
+        user.setId(1);
+        user.setName("http");
+        user.setPassword("123");
+        RestTemplate restTemplate = new RestTemplate();
+        System.out.println(restTemplate.postForObject("http://127.0.0.1:8080/httpTest", user, String.class));
+    }
+    @Test
+    public void test13() {
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            System.out.println("主机名："+localHost.getHostName());
+            System.out.println("本地ip地址："+localHost.getHostAddress());
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = requestAttributes.getRequest();
+            String localAddr = request.getLocalAddr();
+            int serverPort = request.getServerPort();
+            System.out.println("http://"+localAddr +":"+ serverPort);
+        } catch (Exception e) {
+
+        }
+
+    }
+    @Test
+    public void test14() {}
 }

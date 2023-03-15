@@ -23,4 +23,6 @@ public interface UserDao extends BaseMapper<User> {
     User queryById(Integer id);
 
     User login(User user);
+
+    User findByCondition(User user);
 }
