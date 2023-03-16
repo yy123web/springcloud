@@ -427,7 +427,7 @@ public class UserController {
     @RequestMapping("index1")
     public String index1() {
         Lock lock = new Lock("lynn", "min");
-        if (distributedLockHandler.tryLock(lock, 3 * 1000L, 30L, 30 * 1000L)) {
+        if (distributedLockHandler.tryLock(lock, 3 * 100L, 30L, 30 * 1000L)) {
             try {
                 //为了演示锁的效果，这里睡眠5000毫秒
                 System.out.println("获取锁成功，开始执行方法index1");

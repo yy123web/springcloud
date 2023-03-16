@@ -7,7 +7,6 @@ import com.jarvis.cache.annotation.CacheDeleteKey;
 import com.zzj.springboot.pojo.User;
 
 import java.util.List;
-import java.util.stream.BaseStream;
 
 public interface UserDao extends BaseMapper<User> {
     List<User> queryAll();

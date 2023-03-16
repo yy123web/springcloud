@@ -82,7 +82,7 @@ public class DistributedLockHandler {
      */
     public boolean getLock(Lock lock, long timeout, long tryInterval, long lockExpireTime) {
         try {
-            if (StringUtils.isEmpty(lock.getName()) || StringUtils.isEmpty(lock.getValue())) {
+            if (StringUtils.isBlank(lock.getName()) || StringUtils.isBlank(lock.getValue())) {
                 return false;
             }
             long startTime = System.currentTimeMillis();
@@ -92,7 +92,7 @@ public class DistributedLockHandler {
                     ops.set(lock.getName(), lock.getValue(), lockExpireTime, TimeUnit.MILLISECONDS);
                     return true;
                 } else {//存在锁
-                    log.debug("lock is exist!！！");
+                    log.error("lock is exist!");
                 }
                 if (System.currentTimeMillis() - startTime > timeout) {//尝试超过了设定值之后直接跳出循环
                     return false;

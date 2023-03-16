@@ -5,4 +5,6 @@ import com.zzj.springboot.pojo.ProtocolInfo;
 import com.zzj.springboot.pojo.User;
 
 public interface ProtocolInfoDao extends BaseMapper<ProtocolInfo> {
+
+    Integer add(ProtocolInfo protocolInfo);
 }
